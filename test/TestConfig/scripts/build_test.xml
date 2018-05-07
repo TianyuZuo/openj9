@@ -27,6 +27,7 @@
 	<description>Compile Java Test Projects</description>
 
 	<taskdef resource="net/sf/antcontrib/antlib.xml" />
+	<import file="${TEST_ROOT}/TestConfig/scripts/utils.xml"/>
 
 	<property name="ascii.workspace.dir" value="${TEST_ROOT}" />
 	<property name="ascii.test.dir" value="${BUILD_ROOT}" />
@@ -43,56 +44,68 @@
 		</else>
 	</if>
 
-	<var name="build.list" value= "" />
-	<if>
-		<equals arg1="${BUILD_LIST}" arg2=""/>
-		<then>
-			<var name="build.list" value= "*/build.xml" />
-		</then>
-		<else>
-			<for list="${BUILD_LIST}" param="builddir">
-				<sequential>
-					<if>
-						<equals arg1="${build.list}" arg2="" />
-						<then>
-							<var name="build.list" value="@{builddir}/build.xml" />
-						</then>
-						<else>
-							<var name="build.list" value="${build.list},@{builddir}/build.xml" />
-						</else>
-					</if>
-				</sequential>
-			</for>
-		</else>
-	</if>
-	<echo> build.list is ${build.list} </echo>
+	<target name="build" description="using ${JAVA_VERSION} compile the source ">
+		<antcall target="create_test_directory" />
 
-	<target name="build" depends="stage_test_material" description="using ${JAVA_VERSION} compile the source ">
-		<subant target="">
-			<property name="build.dir" value="subant1.build" />
-			<property name="not.overloaded" value="not.overloaded" />
-			<property name="JAVA_VERSION" value="${JAVA_VERSION}" />
-			<property name="compiler.javac" value="${JAVAC}" />
-			<fileset dir="../../" includes="${build.list}">
-				<exclude name="TEST_*/build.xml" />
-			</fileset>
-		</subant>
+		<var name="build.list" value= "" />
+		<if>
+			<equals arg1="${BUILD_LIST}" arg2=""/>
+			<then>
+				<var name="build.list" value= "*/build.xml" />
+				<subant target="">
+					<property name="build.dir" value="subant1.build" />
+					<property name="not.overloaded" value="not.overloaded" />
+					<property name="JAVA_VERSION" value="${JAVA_VERSION}" />
+					<property name="compiler.javac" value="${JAVAC}" />
+					<fileset dir="../../" includes="${build.list}">
+						<exclude name="TEST_*/build.xml" />
+					</fileset>
+				</subant>
+			</then>
+			<else>
+				<for list="${BUILD_LIST}" param="builddir">
+
+					<sequential>
+						<buildsubdir subdirpath="@{builddir}/build.xml">
+							<some-tasks>
+								<echo>this is a test</echo>
+							</some-tasks>
+						</buildsubdir>
+						<!-- 
+						<if>
+							<equals arg1="${build.list}" arg2="" />
+							<then>
+								<var name="build.list" value="@{builddir}/build.xml" />
+							</then>
+							<else>
+								<var name="build.list" value="${build.list},@{builddir}/build.xml" />
+							</else>
+						</if>
+						-->
+					</sequential>
+				</for>
+			</else>
+		</if>
+		<echo> build.list is ${build.list} </echo>
+
+
+
+		<antcall target="stage_test_kit_gen" />
+
 	</target>
 
-	<target name="-create_test_directory">
+	<target name="create_test_directory">
 		<mkdir dir="${ascii.test.dir}" />
 	</target>
 
-	<target name="stage_test_material" depends="-create_test_directory">
+	<target name="stage_test_kit_gen">
 		<copy todir="${ascii.test.dir}">
 			<fileset dir="${ascii.workspace.dir}">
 				<include name="TestConfig/**" />
 				<include name="*.mk" />
 			</fileset>
 		</copy>
-
 		<chmod dir="${ascii.test.dir}/TestConfig" perm="755"/>
-
 		<chmod file="${ascii.test.dir}/*.mk" perm="755"/>
 	</target>
 

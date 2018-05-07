@@ -22,42 +22,16 @@
   SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
 -->
 
-<project name="cmdLineTests" default="build" basedir=".">
-	<taskdef resource="net/sf/antcontrib/antlib.xml" />
-	<description>
-		Build cmdLineTests
-	</description>
-	
+<project name="Utils for test compilation" basedir=".">
 
-	<!-- set properties for this build -->
-	<property name="DEST" value="${BUILD_ROOT}/functional/cmdLineTests" />
+	<macrodef name="buildsubdir">
+	    <attribute name="subdirpath" />
+	    <element name="some-tasks" optional="yes"/>
+	    <sequential>
+	    	
+	        <echo>subdirpath is @{subdirpath}</echo>
+	        <some-tasks/>
+	    </sequential>
+	</macrodef>
 
-	<target name="init">
-		<mkdir dir="${DEST}" />
-	</target>
-
-	<target name="build" depends="dist">
-		<if>
-			<equals arg1="${JCL_VERSION}" arg2="latest" />
-			<then>
-				<subant target="">
-					<fileset dir="." includes="*/build.xml">
-						<exclude name="jvmtitests/build.xml" />
-						<exclude name="proxyFieldAccess/build.xml" />
-					</fileset>
-				</subant>
-			</then>
-			<else>
-				<subant target="">
-					<fileset dir="." includes="*/build.xml" />
-				</subant>
-			</else>
-		</if>
-	</target>
-	
-	<target name="dist" depends="init,dist_functional">
-		<copy todir="${DEST}">
-			<fileset dir="." includes="*.mk"/>
-		</copy>
-	</target>
 </project>

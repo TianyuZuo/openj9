@@ -23,22 +23,34 @@
 -->
 
 <project name="BUILD_FUNCTIONAL_TEST" default="build_functional" basedir=".">
-	<taskdef resource="net/sf/antcontrib/antlib.xml" />
 	<description>
 		Build functional tests
 	</description>
-
+	<taskdef resource="net/sf/antcontrib/antlib.xml" />
+	<import file="${TEST_ROOT}/TestConfig/scripts/utils.xml"/>
+	
 	<!-- set properties for this build -->
 	<property name="DEST_FUNCTIONAL" value="${BUILD_ROOT}/functional" />
 	
-	<target name="dist_functional" >
+	<target name="get_dependency" >
+		<echo message="starting downloading functinal test dependencies" />
+		<exec executable="perl" failonerror="true">
+			<arg value="${TEST_ROOT}/TestConfig/scripts/tools/getDependencies.pl" />
+			<arg value="-path" />
+			<arg value="${TEST_ROOT}/TestConfig/lib" />
+			<arg value="-task" />
+			<arg value="default" />
+		</exec>
+	</target>
+	
+	<target name="dist_functional">
 		<mkdir dir="${DEST_FUNCTIONAL}" />
 		<copy todir="${DEST_FUNCTIONAL}">
 			<fileset dir="${TEST_ROOT}/functional" includes="*.mk,*.xml"/>
 		</copy>
 	</target>
 	
-	<target name="build_functional" depends="dist_functional">
+	<target name="build_functional" depends="get_dependency, dist_functional">
 		<if>
 			<equals arg1="${JAVA_VERSION}" arg2="Panama"/>
 			<then>

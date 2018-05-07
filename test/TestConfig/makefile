@@ -70,13 +70,7 @@ clean: cleanBuild
 .PHONY: cleanBuild clean
 
 #######################################
-# download all dependent jars
-#######################################
-getdependency:
-	perl scripts$(D)tools$(D)getDependencies.pl -path '$(TEST_ROOT)$(D)TestConfig$(D)lib' -task default
-
-#######################################
 # compile all tests under $(TEST_ROOT)
 #######################################
-compile: getdependency
+compile:
 	ant -f scripts$(D)build_test.xml -DTEST_ROOT=$(TEST_ROOT) -DBUILD_ROOT=$(BUILD_ROOT) -DJAVA_BIN=$(JAVA_BIN) -DJAVA_VERSION=$(JAVA_VERSION) -DJCL_VERSION=$(JCL_VERSION) -DBUILD_LIST=${BUILD_LIST} -DRESOURCES_DIR=${RESOURCES_DIR} -DPLATFORM=${PLATFORM} -DJDK_HOME=${JDK_HOME} -DJVM_VERSION=$(JVM_VERSION)
